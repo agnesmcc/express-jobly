@@ -9,6 +9,7 @@ const { BadRequestError } = require("../expressError");
 const { ensureLoggedIn } = require("../middleware/auth");
 const Company = require("../models/company");
 
+const companyGetSchema = require("../schemas/companyGet.json");
 const companyNewSchema = require("../schemas/companyNew.json");
 const companyUpdateSchema = require("../schemas/companyUpdate.json");
 
@@ -52,7 +53,21 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
   try {
-    const companies = await Company.findAll();
+    // Validate the query parameters against the schema
+    const validator = jsonschema.validate(req.query, companyGetSchema);
+    if (!validator.valid) {
+      // If the validation fails, throw a BadRequestError with the validation errors
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs);
+    }
+
+    // The `filters` object will contain the query parameters passed in the request
+    // It can contain the following keys:
+    // - minEmployees: The minimum number of employees to filter by
+    // - maxEmployees: The maximum number of employees to filter by
+    // - name: A partial or complete name of the company to search for
+    const filters = req.query;
+    const companies = await Company.findAll(filters);
     return res.json({ companies });
   } catch (err) {
     return next(err);

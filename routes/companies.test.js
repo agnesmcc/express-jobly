@@ -106,6 +106,54 @@ describe("GET /companies", function () {
         .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(500);
   });
+
+  test("works with filter", async function () {
+    const resp = await request(app).get("/companies?minEmployees=2");
+    expect(resp.body).toEqual({
+      companies:
+          [
+            {
+              handle: "c2",
+              name: "C2",
+              description: "Desc2",
+              numEmployees: 2,
+              logoUrl: "http://c2.img",
+            },
+            {
+              handle: "c3",
+              name: "C3",
+              description: "Desc3",
+              numEmployees: 3,
+              logoUrl: "http://c3.img",
+            },
+          ],
+    });
+  })
+
+  test("fails if minEmployees is not a number", async function () {
+    const resp = await request(app).get("/companies?minEmployees=not-a-number");
+    expect(resp.statusCode).toEqual(400);
+  })
+
+  test("fails if maxEmployees is not a number", async function () {
+    const resp = await request(app).get("/companies?maxEmployees=not-a-number");
+    expect(resp.statusCode).toEqual(400);
+  })
+
+  test("fails if minEmployees > maxEmployees", async function () {
+    const resp = await request(app).get("/companies?minEmployees=3&maxEmployees=2");
+    expect(resp.statusCode).toEqual(400);
+  })
+
+  test("fails if minEmployees is < 0", async function () {
+    const resp = await request(app).get("/companies?minEmployees=-1");
+    expect(resp.statusCode).toEqual(400);
+  })
+
+  test("fails if maxEmployees is < 0", async function () {
+    const resp = await request(app).get("/companies?maxEmployees=-1");
+    expect(resp.statusCode).toEqual(400);
+  })
 });
 
 /************************************** GET /companies/:handle */
