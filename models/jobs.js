@@ -42,7 +42,7 @@ class Job {
                 salary,
                 equity,
                 company_handle
-           FROM companies`;
+           FROM jobs`;
     let values = [];
     if (filters.minSalary) {
       query += ` WHERE salary >= $1`;
@@ -57,7 +57,7 @@ class Job {
       query += ` title ILIKE $${values.length + 1}`;
       values.push(`%${filters.title}%`);
     }
-    query += ` ORDER BY name`;
+    query += ` ORDER BY title`;
     const companiesRes = await db.query(query, values);
     return companiesRes.rows;
   }
