@@ -48,16 +48,17 @@ class Job {
       query += ` WHERE salary >= $1`;
       values.push(filters.minSalary);
     }
-    if (filters.hasEquity) {
-      (values.length >= 1) ? query += " AND" : query += " WHERE";
-      query += ` equity >= 0`;
-    }
     if (filters.title) {
       (values.length >= 1) ? query += " AND" : query += " WHERE";
       query += ` title ILIKE $${values.length + 1}`;
       values.push(`%${filters.title}%`);
     }
+    if (filters.hasEquity) {
+      (values.length >= 1) ? query += " AND" : query += " WHERE";
+      query += ` equity >= 0`;
+    }
     query += ` ORDER BY title`;
+    console.log(query, values);
     const companiesRes = await db.query(query, values);
     return companiesRes.rows;
   }
@@ -70,7 +71,7 @@ class Job {
    **/
 
   static async get(jobId) {
-    const companyRes = await db.query(
+    const jobRes = await db.query(
           `SELECT id, title, salary, equity, company_handle
            FROM jobs
            WHERE id = $1`,
@@ -97,7 +98,9 @@ class Job {
 
   static async update(jobId, data) {
     if (data.company_handle) delete data.company_handle;
-    const { setCols, values } = sqlForPartialUpdate(data);
+    console.log(data);
+    const { setCols, values } = sqlForPartialUpdate(data, {});
+    console.log(setCols, values);
     const jobIdVarIndex = "$" + (values.length + 1);
 
     const querySql = `UPDATE jobs 
