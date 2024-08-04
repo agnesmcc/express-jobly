@@ -27,6 +27,8 @@ const router = new express.Router();
 
 router.post("/", ensureIsAdmin, async function (req, res, next) {
   try {
+    if (req.body.salary) req.body.salary = +req.body.salary;
+    if (req.body.equity) req.body.equity = +req.body.equity;
     const validator = jsonschema.validate(req.body, jobNewSchema);
     if (!validator.valid) {
       const errs = validator.errors.map(e => e.stack);
@@ -53,6 +55,8 @@ router.post("/", ensureIsAdmin, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
   try {
+    if (req.query.minSalary) req.query.minSalary = +req.query.minSalary;
+    if (req.query.hasEquity) req.query.hasEquity = req.query.hasEquity === "true";
     // Validate the query parameters against the schema
     const validator = jsonschema.validate(req.query, jobGetSchema);
     if (!validator.valid) {
@@ -123,7 +127,7 @@ router.patch("/:id", ensureIsAdmin, async function (req, res, next) {
 
 router.delete("/:id", ensureIsAdmin, async function (req, res, next) {
   try {
-    await job.remove(req.params.id);
+    await Job.remove(req.params.id);
     return res.json({ deleted: req.params.id });
   } catch (err) {
     return next(err);
