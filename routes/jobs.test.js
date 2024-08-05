@@ -145,10 +145,24 @@ describe("GET /jobs", function () {
       jobs:
           [
             {
+              id: 1,
+              title: "j1",
+              salary: 100,
+              equity: "0.5",
+              company_handle: "c1",
+            },
+            {
               id: 2,
               title: "j2",
               salary: 200,
               equity: "0.6",
+              company_handle: "c1",
+            },
+            {
+              id: 3,
+              title: "j3",
+              salary: 300,
+              equity: "0.7",
               company_handle: "c1",
             },
           ],

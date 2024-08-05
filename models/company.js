@@ -89,18 +89,36 @@ class Company {
 
   static async get(handle) {
     const companyRes = await db.query(
-          `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
+          `SELECT companies.handle,
+                  companies.name,
+                  companies.description,
+                  companies.num_employees AS "numEmployees",
+                  companies.logo_url AS "logoUrl",
+                  jobs.id,
+                  jobs.title,
+                  jobs.salary,
+                  jobs.equity
            FROM companies
-           WHERE handle = $1`,
+           LEFT JOIN jobs ON companies.handle = jobs.company_handle
+           WHERE companies.handle = $1`,
         [handle]);
 
-    const company = companyRes.rows[0];
-
-    if (!company) throw new NotFoundError(`No company: ${handle}`);
+    if (!companyRes.rows[0]) throw new NotFoundError(`No company: ${handle}`);
+    
+    const company = {
+      handle: companyRes.rows[0].handle,
+      name: companyRes.rows[0].name,
+      description: companyRes.rows[0].description,
+      numEmployees: companyRes.rows[0].numEmployees,
+      logoUrl: companyRes.rows[0].logoUrl,
+    };
+    const jobs = companyRes.rows.reduce((result, row) => {
+      if (row.id !== null) {
+        result.push({ id: row.id, title: row.title, salary: row.salary, equity: row.equity });
+      }
+      return result;
+    }, []);
+    company.jobs = jobs;
 
     return company;
   }
