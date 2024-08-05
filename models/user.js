@@ -217,7 +217,7 @@ class User {
     );
     const application = result.rows[0];
 
-    return application;
+    return { "applied": application.jobId };
   }
 }
 
