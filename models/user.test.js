@@ -228,3 +228,16 @@ describe("remove", function () {
     }
   });
 });
+
+
+/************************************** apply */
+
+describe("apply", function () {
+  test("works", async function () {
+    const application = await User.apply("u1", 1);
+    expect(application).toEqual({
+      username: "u1",
+      jobId: 1,
+    });
+  });
+})
