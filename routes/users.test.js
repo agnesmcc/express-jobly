@@ -228,6 +228,7 @@ describe("GET /users/:username", function () {
         lastName: "U1L",
         email: "user1@user.com",
         isAdmin: false,
+        jobs: [1, 2],
       },
     });
   });
@@ -243,6 +244,23 @@ describe("GET /users/:username", function () {
         lastName: "U1L",
         email: "user1@user.com",
         isAdmin: false,
+        jobs: [1, 2],
+      },
+    });
+  });
+
+  test("works for user with no applications", async function () {
+    const resp = await request(app)
+        .get(`/users/u4`)
+        .set("authorization", `Bearer ${u4Token}`);
+    expect(resp.body).toEqual({
+      user: {
+        username: "u4",
+        firstName: "U4F",
+        lastName: "U4L",
+        email: "user4@user.com",
+        isAdmin: true,
+        jobs: [],
       },
     });
   });
@@ -361,28 +379,28 @@ describe("DELETE /users/:username", function () {
 describe("POST /users/:username/jobs/:id", function () {
   test("works for users", async function () {
     const resp = await request(app)
-        .post(`/users/u1/jobs/1`)
+        .post(`/users/u1/jobs/3`)
         .set("authorization", `Bearer ${u1Token}`);
-    expect(resp.body).toEqual({ applied: 1 });
+    expect(resp.body).toEqual({ applied: 3 });
   });
 
   test("works for admin users", async function () {
     const resp = await request(app)
-        .post(`/users/u1/jobs/1`)
+        .post(`/users/u1/jobs/3`)
         .set("authorization", `Bearer ${u4Token}`);
-    expect(resp.body).toEqual({ applied: 1 });
+    expect(resp.body).toEqual({ applied: 3 });
   });
 
   test("unauth when user does not match", async function () {
     const resp = await request(app)
-        .post(`/users/u2/jobs/1`)
+        .post(`/users/u2/jobs/3`)
         .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(401);
   });
 
   test("unauth for anon", async function () {
     const resp = await request(app)
-        .post(`/users/u1/jobs/1`);
+        .post(`/users/u1/jobs/3`);
     expect(resp.statusCode).toEqual(401);
   });
 });

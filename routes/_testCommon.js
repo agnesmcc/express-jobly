@@ -7,6 +7,8 @@ const { createToken } = require("../helpers/tokens");
 
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
+  await db.query("DELETE FROM applications");
+  // noinspection SqlWithoutWhere
   await db.query("DELETE FROM jobs");
   await db.query("ALTER SEQUENCE jobs_id_seq RESTART WITH 1;");
   // noinspection SqlWithoutWhere
@@ -77,6 +79,11 @@ async function commonBeforeAll() {
     password: "password4",
     isAdmin: true,
   });
+
+  await db.query(`
+    INSERT INTO applications(username, job_id)
+    VALUES ('u1', 1),
+           ('u1', 2)`);
 }
 
 async function commonBeforeEach() {

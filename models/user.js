@@ -118,7 +118,7 @@ class User {
   /** Given a username, return data about user.
    *
    * Returns { username, first_name, last_name, is_admin, jobs }
-   *   where jobs is { id, title, company_handle, company_name }
+   *   where jobs is [ jobId ... ]
    *
    * Throws NotFoundError if user not found.
    **/
@@ -130,14 +130,9 @@ class User {
                   users.last_name,
                   users.email,
                   users.is_admin,
-                  applications.job_id,
-                  jobs.title,
-                  companies.handle,
-                  companies.name
+                  applications.job_id
            FROM users
            LEFT JOIN applications ON users.username = applications.username
-           LEFT JOIN jobs ON applications.job_id = jobs.id
-           LEFT JOIN companies ON jobs.company_handle = companies.handle
            WHERE users.username = $1`,
         [username],
     );
@@ -150,12 +145,12 @@ class User {
       lastName: userRes.rows[0].last_name,
       email: userRes.rows[0].email,
       isAdmin: userRes.rows[0].is_admin};
-    const jobs = userRes.rows.map(job => ({
-      id: job.job_id,
-      title: job.title,
-      company_handle: job.handle,
-      company_name: job.name
-    }))
+    const jobs = userRes.rows.reduce((acc, job) => {
+      if (job.job_id) {
+        acc.push(job.job_id);
+      }
+      return acc;
+    }, []);
 
     user.jobs = jobs;
 

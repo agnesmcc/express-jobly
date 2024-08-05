@@ -140,18 +140,19 @@ describe("get", function () {
       lastName: "U1L",
       email: "u1@email.com",
       isAdmin: false,
-      jobs: [{
-        id: 1,
-        title: "j1",
-        company_handle: "c1",
-        company_name: "C1",
-      },
-      {
-        id: 2,
-        title: "j2",
-        company_handle: "c1",
-        company_name: "C1",
-      }],
+      jobs: [1, 2],
+    });
+  });
+
+  test("works for user with no applications", async function () {
+    let user = await User.get("u2");
+    expect(user).toEqual({
+      username: "u2",
+      firstName: "U2F",
+      lastName: "U2L",
+      email: "u2@email.com",
+      isAdmin: false,
+      jobs: [],
     });
   });
 
