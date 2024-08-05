@@ -118,26 +118,46 @@ class User {
   /** Given a username, return data about user.
    *
    * Returns { username, first_name, last_name, is_admin, jobs }
-   *   where jobs is { id, title, company_handle, company_name, state }
+   *   where jobs is { id, title, company_handle, company_name }
    *
    * Throws NotFoundError if user not found.
    **/
 
   static async get(username) {
     const userRes = await db.query(
-          `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
+          `SELECT users.username,
+                  users.first_name,
+                  users.last_name,
+                  users.email,
+                  users.is_admin,
+                  applications.job_id,
+                  jobs.title,
+                  companies.handle,
+                  companies.name
            FROM users
-           WHERE username = $1`,
+           LEFT JOIN applications ON users.username = applications.username
+           LEFT JOIN jobs ON applications.job_id = jobs.id
+           LEFT JOIN companies ON jobs.company_handle = companies.handle
+           WHERE users.username = $1`,
         [username],
     );
 
-    const user = userRes.rows[0];
+    if (!userRes.rows[0]) throw new NotFoundError(`No user: ${username}`);
+    
+    const user = {
+      username: userRes.rows[0].username,
+      firstName: userRes.rows[0].first_name,
+      lastName: userRes.rows[0].last_name,
+      email: userRes.rows[0].email,
+      isAdmin: userRes.rows[0].is_admin};
+    const jobs = userRes.rows.map(job => ({
+      id: job.job_id,
+      title: job.title,
+      company_handle: job.handle,
+      company_name: job.name
+    }))
 
-    if (!user) throw new NotFoundError(`No user: ${username}`);
+    user.jobs = jobs;
 
     return user;
   }

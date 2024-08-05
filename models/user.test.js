@@ -140,6 +140,18 @@ describe("get", function () {
       lastName: "U1L",
       email: "u1@email.com",
       isAdmin: false,
+      jobs: [{
+        id: 1,
+        title: "j1",
+        company_handle: "c1",
+        company_name: "C1",
+      },
+      {
+        id: 2,
+        title: "j2",
+        company_handle: "c1",
+        company_name: "C1",
+      }],
     });
   });
 
@@ -234,9 +246,9 @@ describe("remove", function () {
 
 describe("apply", function () {
   test("works", async function () {
-    const application = await User.apply("u1", 1);
+    const application = await User.apply("u1", 3);
     expect(application).toEqual({
-      applied: 1
+      applied: 3
     });
   });
 })
